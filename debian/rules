@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+# Uncomment this to turn on verbose mode .
+export DH_VERBOSE =1
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	make -C /lib/modules/$(shell uname -r)/build SUBDIRS=`pwd` INSTALL_MOD_PATH="$(CURDIR)/debian/cryptodev"  modules_install
+	install -D crypto/cryptodev.h debian/cryptodev-dev/usr/include/crypto/cryptodev.h

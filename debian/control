@@ -1,0 +1,21 @@
+Source: cryptodev-linux
+Maintainer: Bernhard Schuster <bernhard.schuster@excito.com>
+Section: admin
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>=8), bubba3-kernel-headers
+
+Package: cryptodev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, bubba3-kernel
+Description: Userspace access to kernel space cryptography/hashes
+ Allow openssl and other userspace programs to use the hardware
+ accelerated crypto and hash functions supplied by the linux kernel.
+
+Package: cryptodev-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, bubba3-kernel-headers
+Description: Development headers for cryptodev-linux
+ Provides options to develop userspace programs utilizing hardware
+ acceleration for cryptography and hashes where available.
+
