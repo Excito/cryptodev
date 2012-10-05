@@ -1,36 +1,32 @@
-Description: Upstream changes introduced in version 1.5-1
- This patch has been created by dpkg-source during the package build.
- Here's the last changelog entry, hopefully it gives details on why
- those changes were made:
- .
- cryptodev-linux (1.5-1) unstable; urgency=low
- .
-   * Initial release.
- .
- The person named in the Author field signed this changelog entry.
-Author: Bernhard Schuster <bernhard.schuster@excito.com>
+From: Bernhard Schuster <bernhard.schuster@excito.com>
+Date: Fri, 5 Oct 2012 10:47:27 +0200
+Subject: [PATCH] Fix Makefile version magic
 
 ---
-The information above should follow the Patch Tagging Guidelines, please
-checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
-are templates for supplementary fields that you might want to add:
+ Makefile                       |    5 +-
+ usr/include/crypto/cryptodev.h |  288 ++++++++++++++++++++++++++++++++++++++++
+ version.h                      |    2 +-
+ 3 files changed, 293 insertions(+), 2 deletions(-)
+ create mode 100644 usr/include/crypto/cryptodev.h
 
-Origin: <vendor|upstream|other>, <url of original patch>
-Bug: <url in upstream bugtracker>
-Bug-Debian: http://bugs.debian.org/<bugnumber>
-Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
-Forwarded: <no|not-needed|url proving that it has been forwarded>
-Reviewed-By: <name and email of someone who approved the patch>
-Last-Update: <YYYY-MM-DD>
-
---- cryptodev-linux-1.5.orig/version.h
-+++ cryptodev-linux-1.5/version.h
-@@ -1 +1 @@
--#define VERSION "1.4"
-+#define VERSION "1.5"
---- cryptodev-linux-1.5.orig/Makefile
-+++ cryptodev-linux-1.5/Makefile
-@@ -23,7 +23,8 @@ clean:
+diff --git a/Makefile b/Makefile
+index 2be8825..815de28 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,6 +10,7 @@ build: version.h
+ 	make -C $(KERNEL_DIR) SUBDIRS=`pwd` modules
+ 
+ version.h: Makefile
++	@cp version.h version.h~
+ 	@echo "#define VERSION \"$(VERSION)\"" > version.h
+ 
+ install:
+@@ -19,11 +20,13 @@ install:
+ 
+ clean:
+ 	make -C $(KERNEL_DIR) SUBDIRS=`pwd` clean
++	if test -f version.h~; then mv version.h~ version.h; fi
+ 	rm -f $(hostprogs) *~
  	KERNEL_DIR=$(KERNEL_DIR) make -C tests clean
  
  check:
@@ -40,8 +36,11 @@ Last-Update: <YYYY-MM-DD>
  
  FILEBASE = cryptodev-linux-$(VERSION)
  TMPDIR ?= /tmp
+diff --git a/usr/include/crypto/cryptodev.h b/usr/include/crypto/cryptodev.h
+new file mode 100644
+index 0000000..00193a4
 --- /dev/null
-+++ cryptodev-linux-1.5/usr/include/crypto/cryptodev.h
++++ b/usr/include/crypto/cryptodev.h
 @@ -0,0 +1,288 @@
 +/* This is a source compatible implementation with the original API of
 + * cryptodev by Angelos D. Keromytis, found at openbsd cryptodev.h.
@@ -331,3 +330,11 @@ Last-Update: <YYYY-MM-DD>
 +#define CIOCAUTHCRYPT   _IOWR('c', 109, struct crypt_auth_op)
 +
 +#endif /* L_CRYPTODEV_H */
+diff --git a/version.h b/version.h
+index ad34f8d..0b62be9 100644
+--- a/version.h
++++ b/version.h
+@@ -1 +1 @@
+-#define VERSION "1.4"
++#define VERSION "1.5"
+-- 
