@@ -1,3 +1,9 @@
+cryptodev-linux (1.5-3) unstable; urgency=low
+
+  * Fix onboot loading of cryptodev once again
+
+ -- Bernhard Schuster <bernhard.schuster@excito.com>  Wed, 10 Oct 2012 13:35:55 +0200
+
 cryptodev-linux (1.5-2) unstable; urgency=low
 
   * Add .gitignore file
