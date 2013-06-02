@@ -1,3 +1,9 @@
+cryptodev-linux (1.6-1) unstable; urgency=low
+
+  * Upstream version 1.6
+
+ -- Florian Steinel <git@2012.git.flonet.org>  Sun, 02 Jun 2013 15:06:20 +0200
+
 cryptodev-linux (1.5-3) unstable; urgency=low
 
   * Fix onboot loading of cryptodev once again
