@@ -1,6 +1,13 @@
-KBUILD_CFLAGS += -I$(src)
+#
+# Since version 1.6 the asynchronous mode has been
+# disabled by default. To re-enable it uncomment the
+# corresponding CFLAG.
+#
+CRYPTODEV_CFLAGS ?= #-DENABLE_ASYNC
+KBUILD_CFLAGS += -I$(src) $(CRYPTODEV_CFLAGS)
 KERNEL_DIR = /lib/modules/$(shell uname -r)/build
-VERSION = 1.5
+VERSION = 1.6
+PREFIX =
 
 cryptodev-objs = ioctl.o main.o cryptlib.o authenc.o zc.o util.o
 
@@ -12,18 +19,20 @@ build: version.h
 version.h: Makefile
 	@echo "#define VERSION \"$(VERSION)\"" > version.h
 
-install:
+install: modules_install
+
+modules_install:
 	make -C $(KERNEL_DIR) SUBDIRS=`pwd` modules_install
-	@echo "Installing cryptodev.h in /usr/include/crypto ..."
-	@install -D crypto/cryptodev.h /usr/include/crypto/cryptodev.h
+	@echo "Installing cryptodev.h in $(PREFIX)/usr/include/crypto ..."
+	@install -D crypto/cryptodev.h $(PREFIX)/usr/include/crypto/cryptodev.h
 
 clean:
 	make -C $(KERNEL_DIR) SUBDIRS=`pwd` clean
 	rm -f $(hostprogs) *~
-	KERNEL_DIR=$(KERNEL_DIR) make -C tests clean
+	CFLAGS=$(CRYPTODEV_CFLAGS) KERNEL_DIR=$(KERNEL_DIR) make -C tests clean
 
 check:
-	KERNEL_DIR=$(KERNEL_DIR) make -C tests check
+	CFLAGS=$(CRYPTODEV_CFLAGS) KERNEL_DIR=$(KERNEL_DIR) make -C tests check
 
 FILEBASE = cryptodev-linux-$(VERSION)
 TMPDIR ?= /tmp

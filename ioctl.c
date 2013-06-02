@@ -164,6 +164,10 @@ crypto_create_session(struct fcrypt *fcr, struct session_op *sop)
 	case CRYPTO_SHA1_HMAC:
 		hash_name = "hmac(sha1)";
 		break;
+	case CRYPTO_SHA2_224_HMAC:
+		hash_name = "hmac(sha224)";
+		break;
+
 	case CRYPTO_SHA2_256_HMAC:
 		hash_name = "hmac(sha256)";
 		break;
@@ -185,6 +189,10 @@ crypto_create_session(struct fcrypt *fcr, struct session_op *sop)
 		break;
 	case CRYPTO_SHA1:
 		hash_name = "sha1";
+		hmac_mode = 0;
+		break;
+	case CRYPTO_SHA2_224:
+		hash_name = "sha224";
 		hmac_mode = 0;
 		break;
 	case CRYPTO_SHA2_256:
@@ -530,6 +538,7 @@ clonefd(struct file *filp)
 	return ret;
 }
 
+#ifdef ENABLE_ASYNC
 /* enqueue a job for asynchronous completion
  *
  * returns:
@@ -540,6 +549,9 @@ clonefd(struct file *filp)
 static int crypto_async_run(struct crypt_priv *pcr, struct kernel_crypt_op *kcop)
 {
 	struct todo_list_item *item = NULL;
+	
+	if (unlikely(kcop->cop.flags & COP_FLAG_NO_ZC))
+		return -EINVAL;
 
 	mutex_lock(&pcr->free.lock);
 	if (likely(!list_empty(&pcr->free.list))) {
@@ -604,6 +616,7 @@ static int crypto_async_fetch(struct crypt_priv *pcr,
 
 	return retval;
 }
+#endif
 
 /* this function has to be called from process context */
 static int fill_kcop_from_cop(struct kernel_crypt_op *kcop, struct fcrypt *fcr)
@@ -856,6 +869,7 @@ cryptodev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg_)
 			return ret;
 		}
 		return kcaop_to_user(&kcaop, fcr, arg);
+#ifdef ENABLE_ASYNC
 	case CIOCASYNCCRYPT:
 		if (unlikely(ret = kcop_from_user(&kcop, fcr, arg)))
 			return ret;
@@ -867,6 +881,7 @@ cryptodev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg_)
 			return ret;
 
 		return kcop_to_user(&kcop, fcr, arg);
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -1012,6 +1027,7 @@ cryptodev_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg_)
 			return ret;
 
 		return compat_kcop_to_user(&kcop, fcr, arg);
+#ifdef ENABLE_ASYNC
 	case COMPAT_CIOCASYNCCRYPT:
 		if (unlikely(ret = compat_kcop_from_user(&kcop, fcr, arg)))
 			return ret;
@@ -1023,7 +1039,7 @@ cryptodev_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg_)
 			return ret;
 
 		return compat_kcop_to_user(&kcop, fcr, arg);
-
+#endif
 	default:
 		return -EINVAL;
 	}
